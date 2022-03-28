@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,6 +33,8 @@ public class MenuManager : MonoBehaviour
 
     public Text textGamemode;
     public Text textDescription;
+
+    public Dropdown dropdownMapSize;
 
     private void Awake()
     {
@@ -67,16 +71,7 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void FinishedLoading()
-    {
-        lighting.fog = true;
-        lighting.UpdateShader();
-
-        loadingCamera.SetActive(false);
-        loadingUi.SetActive(false);
-
-        Instantiate(playerPrefab, null);
-    }
+    #region UI
 
     public void TogglePause()
     {
@@ -209,6 +204,24 @@ public class MenuManager : MonoBehaviour
         textDescription.text = "";
     }
 
+    public void Button_RandomiseSeed()
+    {
+        int randomSeed = Random.Range(-9999999, 9999999);
+        World.instance.seed = randomSeed;
+        inputFieldSeed.text = randomSeed.ToString();
+    }
+
+    public void Button_DropdownMapSize()
+    {
+        if (dropdownMapSize.options.Count == 4)
+        {
+            dropdownMapSize.options.RemoveAt(3);
+            dropdownMapSize.value = 1;
+        }
+    }
+
+    #region Main Menu
+
     public void Button_OpenSea()
     {
         menuButtonsUi.SetActive(false);
@@ -245,10 +258,84 @@ public class MenuManager : MonoBehaviour
         textDescription.text = "";
     }
 
-    public void Button_RandomiseSeed()
+    #endregion
+
+    #region OpenSea API
+
+    [Header("OpenSea API")]
+    public string collectionAddress = "0x";
+    public string apiUrl = "https://testnets-api.opensea.io/api/v1/asset/";
+    public InputField inputFieldTokenId;
+    public Button buttonFindNft;
+
+    public void Button_FindNFT()
     {
-        int randomSeed = Random.Range(-9999999, 9999999);
-        World.instance.seed = randomSeed;
-        inputFieldSeed.text = randomSeed.ToString();
+        buttonFindNft.interactable = false;
+
+        HttpWebRequest webRequest;
+        webRequest = (HttpWebRequest)WebRequest.Create($"{apiUrl}{collectionAddress}/{inputFieldTokenId.text}");
+        webRequest.ContentType = "application/json; charset=utf-8";
+        webRequest.Method = "GET";
+
+        try
+        {
+            HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+            Stream stream = webResponse.GetResponseStream();
+            StreamReader streamReader = new StreamReader(stream);
+            string result = streamReader.ReadToEnd();
+
+            Debug.Log(result);
+
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex.Message);
+        }
+
+        buttonFindNft.interactable = true;
+    }
+
+    #endregion
+
+    #endregion
+
+    public void FinishedLoading()
+    {
+        lighting.fog = true;
+        lighting.UpdateShader();
+
+        loadingCamera.SetActive(false);
+        loadingUi.SetActive(false);
+
+        Instantiate(playerPrefab, null);
+    }
+
+
+    public void ChangeMapSize()
+    {
+        World world = World.instance;
+
+        switch (dropdownMapSize.value)
+        {
+            case 0: // TINY
+                world.mapSize = new Vector2Int(10, 10);
+                break;
+
+            case 1: // NORMAL
+                world.mapSize = new Vector2Int(20, 20);
+                break;
+
+            case 2: // MASSIVE
+                world.mapSize = new Vector2Int(30, 30);
+                break;
+        }
+
+        loadingCamera.GetComponent<LoadingCamera>().SetupCameraPosition(world);
+    }
+
+
+    public void SetDefaultMapSize()
+    {
+        World.instance.mapSize = new Vector2Int(20, 20);
     }
 }

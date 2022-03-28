@@ -10,6 +10,7 @@ public class MenuCamera : MonoBehaviour
     {
         World world = World.instance;
         SetupCameraPosition(world);
+        FindObjectOfType<MenuManager>().SetDefaultMapSize();
     }
 
     private void Update()
