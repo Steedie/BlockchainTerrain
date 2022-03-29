@@ -12,7 +12,7 @@ public class MenuManager : MonoBehaviour
     public bool paused = false;
 
     private Lighting lighting;
-
+    
     public GameObject playerPrefab;
 
     public MenuCamera menuCamera;
@@ -36,6 +36,8 @@ public class MenuManager : MonoBehaviour
 
     public Dropdown dropdownMapSize;
 
+    public Text textMessage;
+
     private void Awake()
     {
         instance = this;
@@ -51,11 +53,14 @@ public class MenuManager : MonoBehaviour
 
         openSeaUi.SetActive(false);
         sandboxUi.SetActive(false);
+        nftPlayUi.SetActive(false);
 
         loadingUi.SetActive(false);
 
         textGamemode.gameObject.SetActive(true);
         textDescription.gameObject.SetActive(true);
+
+        SetMessageText("", 0, new Color(1, 1, 1, .8f));
 
         textGamemode.text = "Choose a gamemode";
         textDescription.text = "";
@@ -73,6 +78,12 @@ public class MenuManager : MonoBehaviour
 
     #region UI
 
+    private void SetMessageText(string message, float duration, Color color)
+    {
+        textMessage.color = color;
+        textMessage.text = message;
+    }
+
     public void TogglePause()
     {
         if (!FindObjectOfType<PlayerManager>()) return;
@@ -88,6 +99,7 @@ public class MenuManager : MonoBehaviour
 
             openSeaUi.SetActive(false);
             sandboxUi.SetActive(false);
+            nftPlayUi.SetActive(false);
 
             playerCamera = FindObjectOfType<PlayerCamera>().gameObject;
 
@@ -100,6 +112,8 @@ public class MenuManager : MonoBehaviour
 
             textGamemode.text = "Choose a gamemode";
             textDescription.text = "Press Q to resume";
+
+            SetMessageText("", 10, new Color(1, 1, 1, .8f));
 
             MouseMode.Pause();
         }
@@ -131,7 +145,8 @@ public class MenuManager : MonoBehaviour
         loadingCamera.SetActive(true);
         loadingUi.SetActive(true);
 
-        if (inputFieldSeed.text.Length == 0)
+
+        if (inputFieldSeed.text.Length == 0 && sandboxUi.activeInHierarchy)
         {
             Button_RandomiseSeed();
         }
@@ -198,10 +213,13 @@ public class MenuManager : MonoBehaviour
 
         openSeaUi.SetActive(false);
         sandboxUi.SetActive(false);
+        nftPlayUi.SetActive(false);
         backButton.SetActive(false);
 
         textGamemode.text = "Choose a gamemode";
         textDescription.text = "";
+
+        SetMessageText("", 10, new Color(1, 1, 1, .8f));
     }
 
     public void Button_RandomiseSeed()
@@ -238,6 +256,7 @@ public class MenuManager : MonoBehaviour
         backButton.SetActive(true);
         textGamemode.gameObject.SetActive(false);
         textDescription.gameObject.SetActive(false);
+        dropdownMapSize.interactable = true;
     }
 
     public void Hover_OpenSea()
@@ -267,10 +286,15 @@ public class MenuManager : MonoBehaviour
     public string apiUrl = "https://testnets-api.opensea.io/api/v1/asset/";
     public InputField inputFieldTokenId;
     public Button buttonFindNft;
+    public GameObject nftPlayUi;
+    public Text textNftSeed;
+    public Text textNftSize;
 
     public void Button_FindNFT()
     {
         buttonFindNft.interactable = false;
+
+        //Debug.Log($"{apiUrl}{collectionAddress}/{inputFieldTokenId.text}");
 
         HttpWebRequest webRequest;
         webRequest = (HttpWebRequest)WebRequest.Create($"{apiUrl}{collectionAddress}/{inputFieldTokenId.text}");
@@ -284,15 +308,64 @@ public class MenuManager : MonoBehaviour
             StreamReader streamReader = new StreamReader(stream);
             string result = streamReader.ReadToEnd();
 
-            Debug.Log(result);
+            NFT_Data nft = new NFT_Data();
+            nft = JsonUtility.FromJson<NFT_Data>(result);
 
+            foreach (Trait trait in nft.traits)
+            {
+                if (trait.trait_type == "Seed")
+                {
+                    World.instance.seed = int.Parse(trait.value);
+                    textNftSeed.text = $"Seed: {trait.value}";
+                }
+
+                if (trait.trait_type == "Size")
+                {
+                    textNftSize.text = $"Size: {trait.value}";
+
+                    switch (trait.value)
+                    {
+                        case "Small":
+                            World.instance.mapSize = new Vector2Int(10, 10);
+                            break;
+
+                        case "Normal":
+                            World.instance.mapSize = new Vector2Int(20, 20);
+                            break;
+
+                        case "Massive":
+                            World.instance.mapSize = new Vector2Int(30, 30);
+                            break;
+                    }
+                }
+            }
+
+            nftPlayUi.SetActive(true);
+            openSeaUi.SetActive(false);
+
+            SetMessageText("Successfully recieved NFT", 10, new Color(0, 1, 0, .8f));
         }
         catch (System.Exception ex)
         {
-            Debug.Log(ex.Message);
+            //Debug.Log(ex.Message);
+            SetMessageText(ex.Message, 10, new Color(1, 0, 0, .8f));
         }
 
         buttonFindNft.interactable = true;
+    }
+
+    [System.Serializable]
+    public class NFT_Data
+    {
+        public int id;
+        public List<Trait> traits = new List<Trait>();
+    }
+
+    [System.Serializable]
+    public class Trait
+    {
+        public string trait_type;
+        public string value;
     }
 
     #endregion
@@ -301,6 +374,8 @@ public class MenuManager : MonoBehaviour
 
     public void FinishedLoading()
     {
+        if (!loadingUi.activeInHierarchy) return;
+
         lighting.fog = true;
         lighting.UpdateShader();
 

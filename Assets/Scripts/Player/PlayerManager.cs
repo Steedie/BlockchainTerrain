@@ -32,12 +32,23 @@ public class PlayerManager : MonoBehaviour
         SetSpawnPosition();
     }
 
+    private float FindSpawnPosY(Vector3 PosXZ)
+    {
+        PosXZ.y = world.chunkDimensions.y + 1;
+
+        RaycastHit hit;
+        if (Physics.Raycast(PosXZ, Vector3.down, out hit, Mathf.Infinity))
+            return hit.point.y;
+        else
+            return Noise.CalculateHeight(PosXZ.x, PosXZ.z, world) + 0.5f;
+    }
+
     private void SetSpawnPosition()
     {
-        Vector3 spawnPos;
+        Vector3 spawnPos = Vector3.zero;
         spawnPos.x = (world.mapSize.x / 2 * world.chunkDimensions.x) + Mathf.RoundToInt( world.chunkDimensions.x / 2);
         spawnPos.z = (world.mapSize.y / 2 * world.chunkDimensions.z) + Mathf.RoundToInt(world.chunkDimensions.z / 2);
-        spawnPos.y = Noise.CalculateHeight(spawnPos.x, spawnPos.z, world) + 0.5f;
+        spawnPos.y = FindSpawnPosY(spawnPos);
 
         GetComponent<CharacterController>().enabled = false;
         transform.position = spawnPos;
