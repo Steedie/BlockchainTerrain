@@ -246,9 +246,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cubePrefab: {fileID: 6901484129141253362, guid: d5741c60a8d9f9848852344004894014, type: 3}
-  w: 200
-  h: 200
-  globalSeed: 1311
+  w: 300
+  h: 300
+  globalSeed: 330
   minY: -6
   poissonDisc: 10
   generateBlocksUnderTop: 0
@@ -298,7 +298,7 @@ MonoBehaviour:
     use: 1
   baseMat: {fileID: 2100000, guid: 7550532abedbbca45923ab274fd7b053, type: 2}
   visualiserBaseMaterial: {fileID: 2100000, guid: 28780a3f896193f4c887ce984e017feb, type: 2}
-  visualiseTree: 0
+  visualiseTree: 1
   visualDetailMultiplier: 1
 --- !u!4 &1433863535
 Transform:
@@ -404,8 +404,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1886166420}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
-  m_LocalPosition: {x: 100, y: 0, z: 100}
-  m_LocalScale: {x: 20, y: 1, z: 20}
+  m_LocalPosition: {x: 150, y: 0, z: 150}
+  m_LocalScale: {x: 30, y: 1, z: 30}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -464,8 +464,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 157.26
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -488,13 +488,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2064836537}
-  m_LocalRotation: {x: 0.39842302, y: 0.00823331, z: -0.0029816658, w: 0.91716003}
-  m_LocalPosition: {x: 105.902855, y: 111.34425, z: -33.256577}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 150, y: 111.34425, z: 150}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &2064836541
 MonoBehaviour:
   m_ObjectHideFlags: 0

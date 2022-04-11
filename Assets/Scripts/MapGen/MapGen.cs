@@ -354,6 +354,56 @@ public class MapGen : MonoBehaviour
     private Color CalculateTerrainPixel(int x, int y)
     {
         float height = 0;
+        float count = 0;
+
+        foreach (NoiseDataOld noiseData in noiseDatas)
+        {
+            if (!noiseData.use) continue;
+            count += 1;
+            height += Height(x / visualDetailMultiplier, y / visualDetailMultiplier, globalSeed, noiseData.noiseScale);
+            height = Mathf.RoundToInt(height);
+            //height += Mathf.Round(noiseHeight * noiseData.heightIntensity);
+
+            //float maxPossibleY = noiseData.heightIntensity;
+            //float heightMultiplier = (noiseHeight * noiseData.heightIntensity) * noiseData.heightVariation / maxPossibleY;
+            //height *= heightMultiplier;
+            //print(heightMultiplier);
+            //height = (height * noiseData.heightIntensity) / maxPossibleY;
+        }
+
+        height = height / count;
+
+        return new Color(height, height, height);
+
+        //height = Mathf.Round(height);
+
+
+
+        for (int i = 0; i < heightLevels.Count; i++)
+        {
+            if (height >= heightLevels[i].height)
+            {
+                //float colorMultiplier = height * .1f;
+                float colorMultiplier = 1;
+                if (height > 0)
+                {
+                    //colorMultiplier = (height / heightLevels[i].height) * .2f; 
+                    colorMultiplier = (heightLevels[i].height / height);
+                    colorMultiplier = 1 - colorMultiplier;
+                    colorMultiplier = Mathf.Clamp(colorMultiplier, .5f, 5f);
+                }
+                //colorMultiplier = Mathf.Clamp(colorMultiplier, .85f, 1.2f);
+                return heightLevels[i].color * colorMultiplier;
+            }
+        }
+
+        return Color.magenta;
+    }
+
+    /* ORIGINAL
+    private Color CalculateTerrainPixel(int x, int y)
+    {
+        float height = 0;
 
         foreach (NoiseDataOld noiseData in noiseDatas)
         {
@@ -392,6 +442,8 @@ public class MapGen : MonoBehaviour
 
         return Color.magenta;
     }
+
+    */
 
     #endregion
 

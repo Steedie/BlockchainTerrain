@@ -55,6 +55,8 @@ public class MenuManager : MonoBehaviour
         sandboxUi.SetActive(false);
         nftPlayUi.SetActive(false);
 
+        textMessage.gameObject.SetActive(true);
+
         loadingUi.SetActive(false);
 
         textGamemode.gameObject.SetActive(true);
@@ -275,6 +277,11 @@ public class MenuManager : MonoBehaviour
     {
         textGamemode.text = "";
         textDescription.text = "";
+    }
+
+    public void Button_OpenWebsite()
+    {
+        Application.OpenURL("https://testnets.opensea.io/collection/test-terrain");
     }
 
     #endregion

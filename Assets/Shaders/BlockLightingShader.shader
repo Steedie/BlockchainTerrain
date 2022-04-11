@@ -63,7 +63,6 @@ Shader "Voxel/Block Shader"{
 					{
 						fixed4 col = tex2D(_MainTex, i.uv);
 
-						
 						float shade = globalLightLevel;
 						shade *= i.color.a;
 						shade = clamp(1 - shade, minGlobalLightLevel, maxGlobalLightLevel);
