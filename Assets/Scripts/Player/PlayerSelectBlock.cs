@@ -101,6 +101,9 @@ public class PlayerSelectBlock : MonoBehaviour
                     //Debug.Log("block mined - started");
                     world.AddThreadLightChunk(highlightedBlock);
                     world.UpdateCloseChunksNew(highlightedBlock);
+
+                    AudioManager am = AudioManager.instance;
+                    am.PlayAudio(am.blockBreakingClips[Random.Range(0, am.blockBreakingClips.Count)], highlightedBlock);
                 }
             }
         }
@@ -126,6 +129,9 @@ public class PlayerSelectBlock : MonoBehaviour
                     world.AddThreadLightChunk(targetPlacePosition);
                     world.UpdateCloseChunksNew(targetPlacePosition);
                     StartCoroutine(Cooldown());
+
+                    AudioManager am = AudioManager.instance;
+                    am.PlayAudio(am.blockBreakingClips[Random.Range(0, am.blockBreakingClips.Count)], targetPlacePosition);
                 }
             }
         }

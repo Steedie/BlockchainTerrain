@@ -23,6 +23,9 @@ public class PlayerMovement : MonoBehaviour
     private bool jumpCooldown = false;
     private bool headHitCooldown = false;
 
+    public float footstepAudioThreshold;
+    private float footstepAudioProgress;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -47,6 +50,15 @@ public class PlayerMovement : MonoBehaviour
         HeadCheck();
         Sprint();
         Movement();
+        CheckIfOutOfMap();
+    }
+
+    private void CheckIfOutOfMap()
+    {
+        if (transform.position.y < -20)
+        {
+            GetComponent<PlayerManager>().SetSpawnPosition();
+        }
     }
 
     private void Gravity()
@@ -63,7 +75,14 @@ public class PlayerMovement : MonoBehaviour
     private void GroundCheck()
     {
         if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance) || controller.isGrounded)
-            grounded = true;
+        {
+            if (!grounded)
+            {
+                grounded = true;
+                footstepAudioProgress = 0;
+                FootstepBlockAudio();
+            }
+        }
         else
             grounded = false;
     }
@@ -104,11 +123,54 @@ public class PlayerMovement : MonoBehaviour
         Vector3 velocityXZ;
 
         if (grounded)
+        {
             velocityXZ = Vector3.Lerp(velocity, targetVelocityXZ, Time.fixedDeltaTime * groundedAcceleration);
+
+            footstepAudioProgress += targetVelocityXZ.magnitude * Time.fixedDeltaTime;
+
+            if (footstepAudioProgress >= footstepAudioThreshold)
+            {
+                FootstepBlockAudio();
+                footstepAudioProgress = 0;
+            }
+        }
         else
             velocityXZ = Vector3.Lerp(velocity, targetVelocityXZ, Time.fixedDeltaTime * airedAcceleration);
 
         velocity = new Vector3 (velocityXZ.x, velocity.y, velocityXZ.z);
+    }
+
+    Vector3Int lastCheckBlock;
+
+    private void FootstepBlockAudio()
+    {
+        // Get rounded block being stood on
+        Vector3 standingOnBlock = transform.position + Vector3.down * .5f;
+        standingOnBlock.x = Mathf.RoundToInt(standingOnBlock.x);
+        standingOnBlock.y = Mathf.RoundToInt(standingOnBlock.y);
+        standingOnBlock.z = Mathf.RoundToInt(standingOnBlock.z);
+
+        // Convert to Vector3Int (to get block from blocks array)
+        Vector3Int checkBlock = new Vector3Int((int)standingOnBlock.x, (int)standingOnBlock.y, (int)standingOnBlock.z);
+        lastCheckBlock = checkBlock;
+        // Calculate total world dimensions
+        World world = World.instance;
+        Vector3 worldDimensions = new Vector3(world.mapSize.x * world.chunkDimensions.x, world.chunkDimensions.y, world.mapSize.y * world.chunkDimensions.z);
+
+        // Check if block being stood on is in the world dimensions
+        if (checkBlock.x >= 0 && checkBlock.x < worldDimensions.x &&
+            checkBlock.y >= 0 && checkBlock.y < worldDimensions.y &&
+            checkBlock.z >= 0 && checkBlock.z < worldDimensions.z)
+        {
+            Block block = world.blockTypes[world.blocks[checkBlock.x, checkBlock.y, checkBlock.z].blockId];
+
+            List<AudioClip> blockAudioClips = block.footstepAudioClips;
+            if (blockAudioClips.Count > 0)
+            {
+                AudioClip randomFootstepAudioClip = blockAudioClips[UnityEngine.Random.Range(0, blockAudioClips.Count)];
+                AudioManager.instance.PlayAudio(randomFootstepAudioClip, transform.position);
+            }
+        }
     }
 
     private Vector2 KeyboardInput()
@@ -134,5 +196,6 @@ public class PlayerMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawCube(transform.position + Vector3.up * 1.7f / 2, new Vector3(.5f, 1.7f, .5f));
+        Gizmos.DrawCube(lastCheckBlock, Vector3.one);
     }
 }

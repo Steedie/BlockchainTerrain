@@ -373,6 +373,8 @@ public class Chunk : MonoBehaviour
                             blockType = 2;
                     }
 
+                    world.blocks[(int)calculatedX, y, (int)calculatedZ].blockId = blockType;
+
                     Vector3 position = new Vector3(calculatedX, y, calculatedZ);
 
                     #region old

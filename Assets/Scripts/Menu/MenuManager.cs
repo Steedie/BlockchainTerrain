@@ -21,6 +21,7 @@ public class MenuManager : MonoBehaviour
 
     [Header("UI")]
     public GameObject backButton;
+    public GameObject settingsButton;
 
     public GameObject menuUi;
     public GameObject loadingUi;
@@ -28,6 +29,7 @@ public class MenuManager : MonoBehaviour
     public GameObject menuButtonsUi; // (main menu)
     public GameObject openSeaUi;
     public GameObject sandboxUi;
+    public GameObject settingsUi;
 
     public InputField inputFieldSeed;
 
@@ -50,10 +52,12 @@ public class MenuManager : MonoBehaviour
         menuButtonsUi.SetActive(true);
 
         backButton.SetActive(false);
+        settingsButton.SetActive(true);
 
         openSeaUi.SetActive(false);
         sandboxUi.SetActive(false);
         nftPlayUi.SetActive(false);
+        settingsUi.SetActive(false);
 
         textMessage.gameObject.SetActive(true);
 
@@ -72,7 +76,7 @@ public class MenuManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             TogglePause();
         }
@@ -92,12 +96,15 @@ public class MenuManager : MonoBehaviour
 
         paused = !paused;
 
+        AudioManager.instance.playMusic = paused;
+
         if (paused)
         {
             menuUi.SetActive(true);
             menuButtonsUi.SetActive(true);
 
             backButton.SetActive(false);
+            settingsButton.SetActive(true);
 
             openSeaUi.SetActive(false);
             sandboxUi.SetActive(false);
@@ -113,7 +120,7 @@ public class MenuManager : MonoBehaviour
             textDescription.gameObject.SetActive(true);
 
             textGamemode.text = "Choose a gamemode";
-            textDescription.text = "Press Q to resume";
+            textDescription.text = "Press Escape to resume";
 
             SetMessageText("", 10, new Color(1, 1, 1, .8f));
 
@@ -128,6 +135,7 @@ public class MenuManager : MonoBehaviour
 
             openSeaUi.SetActive(false);
             sandboxUi.SetActive(false);
+            settingsUi.SetActive(false);
 
             if (playerCamera != null)
                 playerCamera.SetActive(true);
@@ -212,10 +220,12 @@ public class MenuManager : MonoBehaviour
         menuButtonsUi.SetActive(true);
         textGamemode.gameObject.SetActive(true);
         textDescription.gameObject.SetActive(true);
+        settingsButton.SetActive(true);
 
         openSeaUi.SetActive(false);
         sandboxUi.SetActive(false);
         nftPlayUi.SetActive(false);
+        settingsUi.SetActive(false);
         backButton.SetActive(false);
 
         textGamemode.text = "Choose a gamemode";
@@ -245,6 +255,7 @@ public class MenuManager : MonoBehaviour
     public void Button_OpenSea()
     {
         menuButtonsUi.SetActive(false);
+        settingsButton.SetActive(false);
         openSeaUi.SetActive(true);
         backButton.SetActive(true);
         textGamemode.gameObject.SetActive(false);
@@ -254,11 +265,23 @@ public class MenuManager : MonoBehaviour
     public void Button_Sandbox()
     {
         menuButtonsUi.SetActive(false);
+        settingsButton.SetActive(false);
         sandboxUi.SetActive(true);
         backButton.SetActive(true);
         textGamemode.gameObject.SetActive(false);
         textDescription.gameObject.SetActive(false);
         dropdownMapSize.interactable = true;
+    }
+
+    public void Button_Settings()
+    {
+        backButton.SetActive(true);
+
+        settingsButton.SetActive(false);
+        settingsUi.SetActive(true);
+        menuButtonsUi.SetActive(false);
+        textGamemode.gameObject.SetActive(false);
+        textDescription.gameObject.SetActive(false);
     }
 
     public void Hover_OpenSea()
@@ -276,7 +299,11 @@ public class MenuManager : MonoBehaviour
     public void HoverExit()
     {
         textGamemode.text = "";
-        textDescription.text = "";
+
+        if (paused)
+            textDescription.text = "Press Escape to resume";
+        else
+            textDescription.text = "";
     }
 
     public void Button_OpenWebsite()
@@ -299,6 +326,12 @@ public class MenuManager : MonoBehaviour
 
     public void Button_FindNFT()
     {
+        int token;
+        if (int.TryParse(inputFieldTokenId.text, out token))
+        {
+            // see if its an int, else cant find nft etc
+        }// also check if input lengeth is > 0
+
         buttonFindNft.interactable = false;
 
         //Debug.Log($"{apiUrl}{collectionAddress}/{inputFieldTokenId.text}");
@@ -388,6 +421,8 @@ public class MenuManager : MonoBehaviour
 
         loadingCamera.SetActive(false);
         loadingUi.SetActive(false);
+
+        AudioManager.instance.playMusic = false;
 
         Instantiate(playerPrefab, null);
     }

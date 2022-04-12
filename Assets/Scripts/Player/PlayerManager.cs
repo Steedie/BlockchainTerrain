@@ -43,7 +43,7 @@ public class PlayerManager : MonoBehaviour
             return Noise.CalculateHeight(PosXZ.x, PosXZ.z, world) + 0.5f;
     }
 
-    private void SetSpawnPosition()
+    public void SetSpawnPosition()
     {
         Vector3 spawnPos = Vector3.zero;
         spawnPos.x = (world.mapSize.x / 2 * world.chunkDimensions.x) + Mathf.RoundToInt( world.chunkDimensions.x / 2);

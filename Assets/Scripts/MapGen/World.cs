@@ -1098,6 +1098,8 @@ public class Block
     public float transparency;
     public float toughness;
 
+    public List<AudioClip> footstepAudioClips = new List<AudioClip>();
+
     [Tooltip("Most bottom left texture would be: [0,0]\nThe texture to the right of that would be [1,0]\nelements: 0 top, 1 bottom, 2 side")]
     public List<Vector2> atlas = new List<Vector2>();
 }

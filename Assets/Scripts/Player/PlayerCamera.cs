@@ -13,6 +13,11 @@ public class PlayerCamera : MonoBehaviour
     public float cameraHeight;
     public float sensitivity = 100;
 
+    private void OnEnable()
+    {
+        sensitivity = PlayerPrefs.GetFloat("settings_sensitivity");
+    }
+
     private void Update()
     {
         if (cameraTarget != null)
